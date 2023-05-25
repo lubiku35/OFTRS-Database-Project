@@ -4,13 +4,11 @@ import psycopg2
 fake = Faker('sk_SK')
 
 
-
+# Psycopg2 Remote Connection to PostgreSQL
 try:
     connection = psycopg2.connect(dbname="", user="", password="", host="", port="")
     print("Connection to the database was successful!")
-except psycopg2.Error as e:
-    print(f"Error connecting to the database: {e}")
-
+except psycopg2.Error as e: print(f"Error connecting to the database: {e}")
     
 CURSOR = connection.cursor()
 CURSOR.execute('CREATE SCHEMA IF NOT EXISTS OFTRS')
