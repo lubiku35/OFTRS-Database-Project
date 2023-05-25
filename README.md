@@ -30,6 +30,15 @@ Specifically in this project you can discover a prototype database with testing 
     - [Entity Reservation](#entity-reservation)
     - [Entity Payment](#entity-payment)
     - [Entity Calendar](#entity-calendar)
+- [Database Creation and Data Manipulation Using Python and SQL](#database-creation-and-data-manipulation-using-python-and-sql)
+    - [Python Psycopg2 Remote Connection to Database](#python-psycopg2-remote-connection-to-database)
+    - [Python to SQL for Entity User](#python-to-sql-for-entity-user)
+    - [Python to SQL for Entity Trainer](#python-to-sql-for-entity-trainer)
+    - [Python to SQL for Entity Training](#python-to-sql-for-entity-training)
+    - [Python to SQL for Entity Payment](#python-to-sql-for-entity-payment)
+    - [Python to SQL for Entity Calendar](#python-to-sql-for-entity-calendar)
+
+- [SQL Schema Diagram](#sql-schema-diagram)
 <br>
     
 ## Involved Technologies
@@ -76,35 +85,175 @@ The Calendar entity serves as a weak entity in the database model, representing 
 
 ## Conceptual Model
 
+The conceptual model section presents an overview of the conceptual model for the OFTRS database. The conceptual model represents the high-level design and conceptual relationships between entities without specifying the implementation details. It focuses on the entities, their attributes, and the associations between them, providing a clear understanding of the data requirements and relationships in the system.
+
 ![Conceptual Model](assets\conceptual_model.png)
 
 <br>
 
 ## Realtional Model
 
+In this section, the relational model of the Online Fitness Training Reservation System (OFTRS) database is discussed. The relational model represents the structure and relationships of the database entities using tables, primary keys, and foreign keys. It provides an overview of how the entities are connected and organized within the database.
+
 ### Entity User
 
 **User** (<u>UserID</u>, Full Name, <u>E-mail</u>, <u>Phone Number</u>, Nickname)
 
-- **Full Name** (<u>User</u>, FirstName, LastName)
+- **Full Name**: (<u>User</u>, FirstName, LastName)
 
 
 ### Entity Trainer
 
 **Trainer**: (<u>UserID</u>, <u>TrainerID</u>, Certification)
 
-- **Certification** (<u>Trainer</u>, Specification, Type, ValidityDate)
+- **Certification**: (<u>Trainer</u>, Specification, Type, ValidityDate)
 - **FK**: (UserID) ⊆ User(<u>UserID</u>)  / References
 
 
 ### Entity Training
 
+**Training**: (<u>TrainerID</u>, <u>TrainingIdentity</u>, TrainingName, TrainingDate, Place, MaxCapacity, Duration)
+- **TrainingIdentity**: (<u>Training</u>, <u>TrainingCount, TrainingID</u>)
+- **FK**: (TrainerID) ⊆ Trainer(<u>TrainerID</u>)  / References
+
 
 ### Entity Reservation
 
+**Reservation**: (<u>ReservationID</u>, <u>UserID</u>, <u>TrainingID</u>)
+- **FK**: (UserID) ⊆ User(<u>UserID</u>)  / References
+- **FK**: (TrainingID) ⊆ Training(<u>TrainingID</u>)  / References
 
 ### Entity Payment
 
+**Payment**: (<u>PaymentID</u>, <u>UserID</u>, <u>TrainingID</u>, PaymentAmount, PaymentDate, PaymentType)
+- **FK**: (UserID) ⊆ User(<u>UserID</u>)  / References
+- **FK**: (TrainingID) ⊆ Training(<u>TrainingIdentity</u>)  / References
 
 ### Entity Calendar
+
+**Calendar**: (<u>CalendarID</u>, <u>UserID</u>)
+- **FK**: (UserID) ⊆ User(<u>UserID</u>)  / References
+
+## Database Creation and Data Manipulation Using Python and SQL
+
+This section demonstrates the process of creating the OFTRS database and manipulating data using Python and SQL. It covers the creation of database tables using SQL statements and shows how Python is used to execute these statements to create the database structure. Additionally, it showcases the insertion of data into the tables using Python, with the execution of SQL INSERT statements. It provides examples of common SQL queries to retrieve data from the created tables and demonstrates how Python can be used to execute these queries and fetch the desired results.
+
+### Python Psycopg2 Remote Connection to Database
+
+```python
+try:
+    connection = psycopg2.connect(dbname="", user="", password="", host="", port="")
+    print("Connection to the database was successful!")
+except psycopg2.Error as e: print(f"Error connecting to the database: {e}")
+```
+
+### Python to SQL for Entity User
+
+> SQL statement used in python to create User Table
+
+```python
+CREATE TABLE OFTRS.User (
+    UserID INTEGER PRIMARY KEY,
+    FirstName VARCHAR(75) NOT NULL, 
+    LastName VARCHAR(75) NOT NULL, 
+    Email VARCHAR(125) UNIQUE,
+    PhoneNumber VARCHAR(45) UNIQUE,
+    Nickname VARCHAR(55) NOT NULL,
+    CONSTRAINT userValidateEmail CHECK (email LIKE '_%@_%.__%')
+);
+```
+
+> SQL query used in python to insert generated data to User Table
+
+```python
+CURSOR.execute(
+    "INSERT INTO OFTRS.User (UserID, FirstName, LastName, Email, PhoneNumber, Nickname) VALUES (%s, %s, %s, %s, %s, %s)",
+    (user_id, first_name, last_name, email, phone_number, nickname))
+```
+
+> SQL query used in JetBrains - DataGrip Application for select first 25 rows
+
+```sql
+SELECT * FROM OFTRS.User LIMIT 25;
+```
+
+> Output
+
+![User Table Output](assets\user_table_output.png)
+
+
+### Python to SQL for Entity Trainer
+
+> SQL statement used in python to create Trainer Table
+
+```python
+CREATE TABLE OFTRS.Trainer (
+    TrainerID INTEGER PRIMARY KEY CHECK(TrainerID BETWEEN 100000 AND 999999),
+    UserID INTEGER NOT NULL,
+    Specification VARCHAR(100) NOT NULL,
+    Type VARCHAR(100) NOT NULL,
+    ValidityDate DATE NOT NULL,
+    FOREIGN KEY (UserID)
+    REFERENCES OFTRS.User (UserID)
+);
+```
+
+> SQL query used in python to insert generated data to Trainer Table
+
+```python
+CURSOR.execute(
+    "INSERT INTO OFTRS.trainer (TrainerID, UserID, Specification, Type, ValidityDate) VALUES (%s, %s, %s, %s, %s)", (trainer_id, personal_id, cert_spec, cert_type, cert_validitydate)
+)
+
+```
+
+> SQL query used in JetBrains - DataGrip Application for select first 25 rows
+
+```sql
+SELECT * FROM OFTRS.Trainer LIMIT 25;
+```
+
+> Output
+
+![Trainer Table Output](assets\trainer_table_output.png)
+
+
+
+### Python to SQL for Entity Training
+
+> SQL statement used in python to create Training Table
+
+```python
+
+```
+
+> SQL statement used in python to execute and insert generated data to User Table
+
+
+### Python to SQL for Entity Payment
+
+> SQL statement used in python to create Payment Table
+
+```python
+
+```
+
+> SQL statement used in python to execute and insert generated data to User Table
+
+
+### Python to SQL for Entity Calendar
+
+> SQL statement used in python to create Calendar Table
+
+```python
+
+```
+
+> SQL statement used in python to execute and insert generated data to User Table
+
+
+## SQL Schema Diagram
+
+![SQL Schema Diagram](assets\SQL_schema_diagram.png)
+
 
