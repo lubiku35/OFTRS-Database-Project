@@ -1,4 +1,4 @@
-# Database systems | 0b36dbs 
+# Online Fitness Training Reservation System | Database Project
 
 ## Course Description
 
