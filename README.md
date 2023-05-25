@@ -87,7 +87,7 @@ The Calendar entity serves as a weak entity in the database model, representing 
 
 The conceptual model section presents an overview of the conceptual model for the OFTRS database. The conceptual model represents the high-level design and conceptual relationships between entities without specifying the implementation details. It focuses on the entities, their attributes, and the associations between them, providing a clear understanding of the data requirements and relationships in the system.
 
-![Conceptual Model](assets\conceptual_model.png)
+![Conceptual Model](./assets/conceptual_model.png)
 
 <br>
 
@@ -149,7 +149,7 @@ except psycopg2.Error as e: print(f"Error connecting to the database: {e}")
 
 ### Python to SQL for Entity User
 
-> SQL statement used in python to create User Table
+> SQL query used in python to create User Table
 
 ```python
 CREATE TABLE OFTRS.User (
@@ -179,12 +179,12 @@ SELECT * FROM OFTRS.User LIMIT 25;
 
 > Output
 
-![User Table Output](assets\user_table_output.png)
+![User Table Output](./assets/user_table_output.png)
 
 
 ### Python to SQL for Entity Trainer
 
-> SQL statement used in python to create Trainer Table
+> SQL query used in python to create Trainer Table
 
 ```python
 CREATE TABLE OFTRS.Trainer (
@@ -204,7 +204,6 @@ CREATE TABLE OFTRS.Trainer (
 CURSOR.execute(
     "INSERT INTO OFTRS.trainer (TrainerID, UserID, Specification, Type, ValidityDate) VALUES (%s, %s, %s, %s, %s)", (trainer_id, personal_id, cert_spec, cert_type, cert_validitydate)
 )
-
 ```
 
 > SQL query used in JetBrains - DataGrip Application for select first 25 rows
@@ -221,39 +220,115 @@ SELECT * FROM OFTRS.Trainer LIMIT 25;
 
 ### Python to SQL for Entity Training
 
-> SQL statement used in python to create Training Table
+> SQL query used in python to create Training Table
 
 ```python
-
+CREATE TABLE OFTRS.Training (
+    TrainerID INTEGER NOT NULL,
+    TrainingID VARCHAR(10) UNIQUE,
+    TrainingCount VARCHAR(10) UNIQUE,
+    TrainingName VARCHAR(100) NOT NULL,
+    TrainingDate DATE NOT NULL,
+    Place VARCHAR(120) NOT NULL,
+    MaxCapacity INTEGER NOT NULL,
+    Duration INTEGER NOT NULL,
+    CONSTRAINT PK_Training PRIMARY KEY (TrainingID, TrainingCount),
+    FOREIGN KEY (TrainerID) REFERENCES OFTRS.Trainer (TrainerID)
+);
 ```
 
-> SQL statement used in python to execute and insert generated data to User Table
+> SQL query used in python to insert generated data to Training Table
 
+```python
+CURSOR.execute(
+     '''INSERT INTO OFTRS.Training (TrainerID, TrainingID, TrainingCount,
+        TrainingName,  TrainingDate, Place, MaxCapacity, Duration)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)''', 
+     (TrainerID, TrainingID, TrainingCount, TrainingName, TrainingDate, Place,
+     MaxCapacity, Duration)
+)
+```
+
+> SQL query used in JetBrains - DataGrip Application for select first 25 rows
+
+```sql
+SELECT * FROM OFTRS.Training LIMIT 25;
+```
+
+> Output
+
+![Trainer Table Output](./assets/training_table_output.png)
 
 ### Python to SQL for Entity Payment
 
-> SQL statement used in python to create Payment Table
+> SQL query used in python to create Payment Table
 
 ```python
-
+CREATE TABLE IF NOT EXISTS OFTRS.Payment (
+    PaymentID VARCHAR(100) PRIMARY KEY,
+    UserID INTEGER REFERENCES OFTRS.User(UserID),
+    TrainingID VARCHAR(10) REFERENCES OFTRS.Training(TrainingID),
+    PaymentAmount NUMERIC(10,2) NOT NULL,
+    PaymentDate DATE NOT NULL,
+    PaymentType VARCHAR(50) NOT NULL,
+    CONSTRAINT unique_payment_user_training UNIQUE (UserID, TrainingID),
+    CONSTRAINT check_payment_amount CHECK (PaymentAmount > 0),
+    CONSTRAINT check_payment_date CHECK (PaymentDate <= CURRENT_DATE)
+);
 ```
 
-> SQL statement used in python to execute and insert generated data to User Table
+> SQL query used in python to insert generated data to Payment Table
+
+```python
+CURSOR.execute(
+    'INSERT INTO OFTRS.Payment (PaymentID, UserID, TrainingID, PaymentAmount, PaymentDate, PaymentType) VALUES (%s, %s, %s, %s, %s, %s)', (payment_id, user_id, training_id, amount, payment_date, payment_type)
+)
+```
+
+> SQL query used in JetBrains - DataGrip Application for select first 25 rows
+
+```sql
+SELECT * FROM OFTRS.Payment LIMIT 25;
+```
+
+> Output
+
+![Trainer Table Output](./assets/payment_table_output.png)
 
 
 ### Python to SQL for Entity Calendar
 
-> SQL statement used in python to create Calendar Table
+> SQL query used in python to create Calendar Table
 
 ```python
-
+CREATE TABLE OFTRS.Calendar (
+    CalendarID VARCHAR(100) PRIMARY KEY,
+    UserID INTEGER REFERENCES OFTRS.User(UserID)
+);
 ```
 
-> SQL statement used in python to execute and insert generated data to User Table
+> SQL query used in python to insert generated data to Calendar Table
+
+```python
+CURSOR.execute(
+    "INSERT INTO OFTRS.Calendar (UserID, CalendarID) VALUES (%s, %s)",
+    (user_id[0], calendar_id)
+)
+```
+
+> SQL query used in JetBrains - DataGrip Application for select first 25 rows
+
+```sql
+SELECT * FROM OFTRS.Calendar LIMIT 25;
+```
+
+> Output
+
+![Trainer Table Output](./assets/calendar_table_output.png)
 
 
 ## SQL Schema Diagram
 
-![SQL Schema Diagram](assets\SQL_schema_diagram.png)
+![SQL Schema Diagram](./assets/SQL_schema_diagram.png)
 
 
