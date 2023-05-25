@@ -215,7 +215,7 @@ SELECT * FROM OFTRS.Trainer LIMIT 25;
 
 > Output
 
-![Trainer Table Output](assets\trainer_table_output.png)
+![Trainer Table Output](./assets/trainer_table_output.png)
 
 
 
