@@ -14,31 +14,34 @@ Specifically in this project you can discover a prototype database with testing 
 
 ## Navigation
 
-- [Involved Technologies](#involved-technologies)
-- [Essential Model Description](#essential-model-description)
+- [Online Fitness Training Reservation System | Database Project](#online-fitness-training-reservation-system--database-project)
+  - [Introduction](#introduction)
+  - [Navigation](#navigation)
+  - [Involved Technologies](#involved-technologies)
+  - [Essential Model Description](#essential-model-description)
     - [User](#user)
     - [Trainer](#trainer)
     - [Training](#training)
     - [Reservation](#reservation)
     - [Payment](#payment)
     - [Calendar](#calendar)
-- [Conceptual Model](#conceptual-model)
-- [Relational Model](#realtional-model)
+  - [Conceptual Model](#conceptual-model)
+  - [Realtional Model](#realtional-model)
     - [Entity User](#entity-user)
     - [Entity Trainer](#entity-trainer)
     - [Entity Training](#entity-training)
     - [Entity Reservation](#entity-reservation)
     - [Entity Payment](#entity-payment)
     - [Entity Calendar](#entity-calendar)
-- [Database Creation and Data Manipulation Using Python and SQL](#database-creation-and-data-manipulation-using-python-and-sql)
+  - [Database Creation and Data Manipulation Using Python and SQL](#database-creation-and-data-manipulation-using-python-and-sql)
     - [Python Psycopg2 Remote Connection to Database](#python-psycopg2-remote-connection-to-database)
     - [Python to SQL for Entity User](#python-to-sql-for-entity-user)
     - [Python to SQL for Entity Trainer](#python-to-sql-for-entity-trainer)
     - [Python to SQL for Entity Training](#python-to-sql-for-entity-training)
     - [Python to SQL for Entity Payment](#python-to-sql-for-entity-payment)
     - [Python to SQL for Entity Calendar](#python-to-sql-for-entity-calendar)
-- [SQL Schema Diagram](#sql-schema-diagram)
-- [Additional SQL Queries to Retrieve Data From The Database](#additional-sql-queries-to-retrieve-data-from-the-database)
+  - [SQL Schema Diagram](#sql-schema-diagram)
+  - [Additional SQL Queries to Retrieve Data From The Database](#additional-sql-queries-to-retrieve-data-from-the-database)
     - [External Connection of Tables](#external-connection-of-tables)
     - [Internal Connection of Tables](#internal-connection-of-tables)
     - [Condition on Data](#condition-on-data)
@@ -47,9 +50,8 @@ Specifically in this project you can discover a prototype database with testing 
     - [Set Operations](#set-operations)
     - [Nested SELECT](#nested-select)
     - [Bonus Query](#bonus-query)
-- [SQL Reservations Table](#sql-reservations-table)
-- [JPA - Java Persistence API](#jpa---java-persistence-api)
-<br>
+  - [SQL Reservations Table](#sql-reservations-table)
+  - [JPA - Java Persistence API](#jpa---java-persistence-api)
     
 ## Involved Technologies
 
@@ -349,20 +351,90 @@ SELECT * FROM OFTRS.Calendar LIMIT 25;
 
 ## Additional SQL Queries to Retrieve Data From The Database 
 
+This section presents specific use cases of SQL queries that can be employed to retrieve data from the database. These queries cater to various scenarios and requirements, allowing for efficient and targeted data retrieval.
 
 ### External Connection of Tables
 
+This SQL query return a result set with the first name and last name of users who are also trainers, along with their respective training specifications and the name of the training they are currently conducting.
+
+```sql
+SELECT u.FirstName, u.LastName, t.Specification, tr.TrainingName
+FROM OFTRS.User u
+JOIN OFTRS.Trainer t ON u.UserID = t.UserID
+JOIN OFTRS.Training tr ON t.TrainerID = tr.TrainerID
+```
+
 ### Internal Connection of Tables
+
+This query retrieves the names of training sessions, and the corresponding payment amounts for payments made between January 1, 2022 and March 31, 2023.
+
+```sql
+SELECT tr.TrainingName, p.PaymentAmount
+FROM OFTRS.Training tr
+JOIN OFTRS.Payment p ON tr.TrainingID = p.TrainingID
+WHERE p.PaymentDate >= '2022-01-01' AND p.PaymentDate <= '2023-03-31'
+```
 
 ### Condition on Data
 
+This query retrieves all training sessions taking place in “Praha”.
+
+```sql
+SELECT *
+FROM OFTRS.Training
+WHERE Place LIKE '%Praha%'
+```
+
 ### Aggregation and Condition on the Value of Aggregation Function
+
+This query retrieves the name of each training session and the number of payments made for that session, but only for sessions with more than 5 payments.
+
+```sql
+SELECT tr.TrainingName, COUNT(p.PaymentID) AS NumPayments
+FROM OFTRS.Training tr
+LEFT JOIN OFTRS.Payment p ON tr.TrainingID = p.TrainingID
+GROUP BY tr.TrainingName
+HAVING COUNT(p.PaymentID) > 1
+```
 
 ### Sorting and Paging
 
+This query retrieves the 10 training sessions with the most recent dates.
+
+```sql
+SELECT *
+FROM OFTRS.Training
+ORDER BY TrainingDate DESC
+OFFSET 10 ROWS FETCH NEXT 10 ROWS ONLY
+```
+
 ### Set Operations
 
+This query retrieves the first name, last name, and email of users who have the nickname ‘john2937’ and also have a phone number.
+
+```sql
+SELECT FirstName, LastName, Email
+FROM OFTRS.User
+WHERE Nickname = 'john2937'
+INTERSECT
+SELECT FirstName, LastName, Email
+FROM OFTRS.User
+WHERE PhoneNumber IS NOT NULL
+```
+
 ### Nested SELECT
+
+This query retrieves the name, date, and place of all training sessions where the trainer type is ‘MMA Intermediate’.
+
+```sql
+SELECT tr.TrainingName, tr.TrainingDate, tr.Place
+FROM OFTRS.Training tr
+WHERE tr.TrainerID IN (
+    SELECT TrainerID
+    FROM OFTRS.Trainer
+    WHERE Type = 'MMA Intermediate'
+)
+```
 
 ### Bonus Query
 
