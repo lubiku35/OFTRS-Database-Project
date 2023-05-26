@@ -37,8 +37,18 @@ Specifically in this project you can discover a prototype database with testing 
     - [Python to SQL for Entity Training](#python-to-sql-for-entity-training)
     - [Python to SQL for Entity Payment](#python-to-sql-for-entity-payment)
     - [Python to SQL for Entity Calendar](#python-to-sql-for-entity-calendar)
-
 - [SQL Schema Diagram](#sql-schema-diagram)
+- [Additional SQL Queries to Retrieve Data From The Database](#additional-sql-queries-to-retrieve-data-from-the-database)
+    - [External Connection of Tables](#external-connection-of-tables)
+    - [Internal Connection of Tables](#internal-connection-of-tables)
+    - [Condition on Data](#condition-on-data)
+    - [Aggregation and Condition on the Value of Aggregation Function](#aggregation-and-condition-on-the-value-of-aggregation-function)
+    - [Sorting and Paging](#sorting-and-paging)
+    - [Set Operations](#set-operations)
+    - [Nested SELECT](#nested-select)
+    - [Bonus Query](#bonus-query)
+- [SQL Reservations Table](#sql-reservations-table)
+- [JPA - Java Persistence API](#jpa---java-persistence-api)
 <br>
     
 ## Involved Technologies
@@ -133,6 +143,8 @@ In this section, the relational model of the Online Fitness Training Reservation
 
 **Calendar**: (<u>CalendarID</u>, <u>UserID</u>)
 - **FK**: (UserID) ⊆ User(<u>UserID</u>)  / References
+
+<br>
 
 ## Database Creation and Data Manipulation Using Python and SQL
 
@@ -326,9 +338,47 @@ SELECT * FROM OFTRS.Calendar LIMIT 25;
 
 ![Trainer Table Output](./assets/calendar_table_output.png)
 
+<br>
 
 ## SQL Schema Diagram
 
 ![SQL Schema Diagram](./assets/SQL_schema_diagram.png)
+
+<br>
+
+
+## Additional SQL Queries to Retrieve Data From The Database 
+
+
+### External Connection of Tables
+
+### Internal Connection of Tables
+
+### Condition on Data
+
+### Aggregation and Condition on the Value of Aggregation Function
+
+### Sorting and Paging
+
+### Set Operations
+
+### Nested SELECT
+
+### Bonus Query
+
+This query joins the User, Trainer, and Training tables together to retrieve information about all users who are also trainers and the trainings they provide. The SELECT statement specifies which columns to retrieve: the UserID, FirstName, and LastName columns from the User table, the TrainerID column from the Trainer table, and the TrainingName and TrainingDate columns from the Training table.
+
+```sql
+SELECT u.UserID, u.FirstName, u.LastName, t.TrainerID, t.type, tr.TrainingName, tr.TrainingDate, tr.place
+FROM OFTRS.User u
+INNER JOIN OFTRS.Trainer t ON u.UserID = t.UserID
+INNER JOIN OFTRS.Training tr ON t.TrainerID = tr.TrainerID;
+```
+
+<br>
+
+## SQL Reservations Table
+
+## JPA - Java Persistence API
 
 
